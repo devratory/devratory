@@ -1,0 +1,103 @@
+version: "3.3"
+services:
+  ui:
+    image: ekhmoi/devlab-ui:0.0.1
+    ports:
+      - 8080:80
+    depends_on:
+      - gateway
+
+  gateway:
+    image: ekhmoi/devlab-gateway:0.1.0
+    command: npm run start:prod
+    container_name: ${GATEWAY_HOST}
+    restart: always
+    hostname: ${GATEWAY_HOST}
+    volumes:
+      - ./workflows.json:/usr/src/app/workflows.json
+    env_file:
+      - .env
+    ports:
+      - ${GATEWAY_PORT}:${GATEWAY_PORT}
+    networks:
+      - backend
+    depends_on:
+      - devlab_db
+    links:
+      - devlab_db
+  devlab:
+    image: ekhmoi/devlab-ms:0.0.1
+    command: npm run start:prod
+    container_name: ${DEVLAB_HOST}
+    restart: always
+    hostname: ${DEVLAB_HOST}
+    env_file:
+      - .env
+    ports:
+      - ${DEVLAB_PORT}:${DEVLAB_PORT}
+    networks:
+      - backend
+    depends_on:
+      - devlab_db
+    links:
+      - devlab_db
+
+  user:
+    image: ekhmoi/devlab-user:0.0.2
+    command: npm run start:prod
+    container_name: ${USER_HOST}
+    restart: always
+    hostname: ${USER_HOST}
+    env_file:
+      - .env
+    ports:
+      - ${USER_PORT}:${USER_PORT}
+    networks:
+      - backend
+    depends_on:
+      - devlab_db
+    links:
+      - devlab_db
+
+  token:
+    image: ekhmoi/devlab-token:0.0.4
+    command: npm run start:prod
+    container_name: ${TOKEN_HOST}
+    restart: always
+    hostname: ${TOKEN_HOST}
+    env_file:
+      - .env
+    ports:
+      - ${TOKEN_PORT}:${TOKEN_PORT}
+    networks:
+      - backend
+    depends_on:
+      - devlab_db
+    links:
+      - devlab_db
+
+  devlab_db:
+    image: mongo
+    container_name: devlab_db
+    volumes:
+      - ./db/data/db-files:/data/db
+      # - ./db/mongod.conf:/etc/mongod.conf
+    ports:
+      - "27017:27017"
+    # entrypoint: ['mongod', '--config', '/etc/mongod.conf']
+    logging:
+      driver: none
+    networks:
+      - backend
+
+  redis:
+    image: redis
+    container_name: devlab_redis
+    expose:
+      - 6379
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge

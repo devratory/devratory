@@ -1,0 +1,235 @@
+[
+  {
+    "name": "Register",
+    "httpMethod": "post",
+    "url": "/users",
+    "steps": [
+      {
+        "$$type": "MS_CALL",
+        "name": "CreateUser",
+        "pattern": "@user/create",
+        "payload": "{{body}}"
+      }
+    ],
+    "output": "{{CreateUser.data}}"
+  },
+  {
+    "name": "Login",
+    "httpMethod": "post",
+    "url": "/tokens",
+    "steps": [
+      {
+        "$$type": "MS_CALL",
+        "name": "CreateToken",
+        "pattern": "@token/create_for_credentials",
+        "payload": "{{body}}"
+      }
+    ],
+    "output": "{{CreateToken.data}}"
+  },
+  {
+    "name": "GetContracts",
+    "httpMethod": "get",
+    "url": "/contracts",
+    "authWorkflow": "Auth",
+    "steps": [
+      {
+        "$$type": "MS_CALL",
+        "name": "GetAllContracts",
+        "pattern": "@contract/get_all",
+        "payload": {}
+      }
+    ],
+    "output": "{{GetAllContracts.data}}"
+  },
+  {
+    "name": "CreateContract",
+    "httpMethod": "post",
+    "url": "/contracts",
+    "authWorkflow": "Auth",
+    "steps": [
+      {
+        "$$type": "MS_CALL",
+        "name": "CreateContract",
+        "pattern": "@contract/create",
+        "payload": {
+          "...": "{{body}}",
+          "createdBy": "{{user.id}}"
+        }
+      }
+    ],
+    "output": "{{CreateContract.data}}"
+  },
+
+  {
+    "name": "GetProjects",
+    "httpMethod": "get",
+    "url": "/projects",
+    "authWorkflow": "Auth",
+    "steps": [
+      {
+        "$$type": "MS_CALL",
+        "name": "GetProjects",
+        "pattern": "@project/get_all",
+        "payload": {
+          "createdBy": "{{user.id}}"
+        }
+      }
+    ],
+    "output": "{{GetProjects.data}}"
+  },
+  {
+    "name": "CreateProject",
+    "httpMethod": "post",
+    "url": "/projects",
+    "authWorkflow": "Auth",
+    "steps": [
+      {
+        "$$type": "MS_CALL",
+        "name": "CreateProject",
+        "pattern": "@project/create",
+        "payload": {
+          "...": "{{body}}",
+          "createdBy": "{{user.id}}"
+        }
+      }
+    ],
+    "output": "{{CreateProject.data}}"
+  },
+
+  {
+    "name": "GetWorkflows",
+    "httpMethod": "get",
+    "url": "/projects/:projectId/workflows",
+    "authWorkflow": "Auth",
+    "steps": [
+      {
+        "$$type": "MS_CALL",
+        "name": "GetWorkflows",
+        "pattern": "@workflow/get_all",
+        "payload": {
+          "createdBy": "{{user.id}}",
+          "projectId": "{{params.projectId}}"
+        }
+      }
+    ],
+    "output": "{{GetWorkflows.data}}"
+  },
+  {
+    "name": "CreateWorkflow",
+    "httpMethod": "post",
+    "url": "/projects/:projectId/workflows",
+    "authWorkflow": "Auth",
+    "steps": [
+      {
+        "$$type": "MS_CALL",
+        "name": "CreateWorkflow",
+        "pattern": "@workflow/create",
+        "payload": {
+          "...": "{{body}}",
+          "createdBy": "{{user.id}}",
+          "projectId": "{{params.projectId}}"
+        }
+      }
+    ],
+    "output": "{{CreateWorkflow.data}}"
+  },
+  {
+    "name": "UpdateWorkflow",
+    "httpMethod": "put",
+    "url": "/projects/:projectId/workflows/:workflowId",
+    "authWorkflow": "Auth",
+    "steps": [
+      {
+        "$$type": "MS_CALL",
+        "name": "UpdateWorkflow",
+        "pattern": "@workflow/update",
+        "payload": {
+          "workflow": "{{body}}",
+          "id": "{{params.workflowId}}",
+          "userId": "{{user.id}}"
+        }
+      }
+    ],
+    "output": "{{UpdateWorkflow.data}}"
+  },
+
+  {
+    "name": "GetMicroservices",
+    "httpMethod": "get",
+    "url": "/projects/:projectId/microservices",
+    "authWorkflow": "Auth",
+    "steps": [
+      {
+        "$$type": "MS_CALL",
+        "name": "GetMicroservices",
+        "pattern": "@microservice/get_all",
+        "payload": {
+          "projectId": "{{params.projectId}}",
+          "userId": "{{user.id}}"
+        }
+      }
+    ],
+    "output": "{{GetMicroservices.data}}"
+  },
+  {
+    "name": "CreateMicroservice",
+    "httpMethod": "post",
+    "url": "/projects/:projectId/microservices",
+    "authWorkflow": "Auth",
+    "steps": [
+      {
+        "$$type": "MS_CALL",
+        "name": "CreateMicroservice",
+        "pattern": "@microservice/create",
+        "payload": {
+          "...": "{{body}}",
+          "createdBy": "{{user.id}}",
+          "projectId": "{{params.projectId}}"
+        }
+      }
+    ],
+    "output": "{{CreateMicroservice.data}}"
+  },
+  {
+    "name": "UpdateMicroservice",
+    "httpMethod": "put",
+    "url": "/projects/:projectId/microservices/:microserviceId",
+    "authWorkflow": "Auth",
+    "steps": [
+      {
+        "$$type": "MS_CALL",
+        "name": "UpdateMicroservice",
+        "pattern": "@workflow/update",
+        "payload": {
+          "microservice": "{{body}}",
+          "id": "{{params.microserviceId}}",
+          "userId": "{{user.id}}"
+        }
+      }
+    ],
+    "output": "{{UpdateMicroservice.data}}"
+  },
+
+  {
+    "name": "Auth",
+    "httpMethod": "get",
+    "url": "/users",
+    "steps": [
+      {
+        "$$type": "MS_CALL",
+        "name": "DecodeToken",
+        "pattern": "@token/decode",
+        "payload": {
+          "token": {
+            "$$type": "EXEC_CODE",
+            "name": "GetTokenFromHeader",
+            "inputs": ["{{headers.authorization}}"],
+            "code": "(input1) => input1 && input1.split(' ')[1] || null"
+          }
+        }
+      }
+    ],
+    "output": "{{DecodeToken.data}}"
+  }
+]

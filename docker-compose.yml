@@ -1,0 +1,120 @@
+version: "3.3"
+services:
+
+
+  gateway:
+    image: devlab-gateway-ms:1.0.0
+    build:
+      context: ./devlab-gateway
+      target: development
+      dockerfile: ./Dockerfile
+    command: npm run start:dev
+    volumes:
+      - ./devlab-gateway:/usr/src/app
+      - /usr/src/app/node_modules
+      - ./workflows.json:/usr/src/app/workflows.json
+    container_name: ${GATEWAY_HOST}
+    restart: always
+    hostname: ${GATEWAY_HOST}
+    env_file:
+      - .env
+    ports:
+      - ${GATEWAY_PORT}:${GATEWAY_PORT}
+    networks:
+      - backend
+    links:
+      - redis
+
+  devlab:
+    image: devlab-ms:1.0.0
+    build:
+      context: ./devlab-ms
+      target: development
+      dockerfile: ./Dockerfile
+    command: npm run start:dev
+    volumes:
+      - ./devlab-ms:/usr/src/app
+      - /usr/src/app/node_modules
+    restart: unless-stopped
+    container_name: ${DEVLAB_HOST}
+    hostname: ${DEVLAB_HOST}
+    env_file:
+      - .env
+    ports:
+      - ${DEVLAB_PORT}:${DEVLAB_PORT}
+    networks:
+      - backend
+    depends_on:
+      - devlab_db
+    links:
+      - devlab_db
+  user:
+    image: ekhmoi/devlab-user:0.0.2
+    command: npm run start:prod
+    container_name: ${USER_HOST}
+    restart: always
+    hostname: ${USER_HOST}
+    env_file:
+      - .env
+    ports:
+      - ${USER_PORT}:${USER_PORT}
+    networks:
+      - backend
+    depends_on:
+      - devlab_db
+    links:
+      - devlab_db
+
+  token:
+    image: ekhmoi/devlab-token:0.0.4
+    command: npm run start:prod
+    container_name: ${TOKEN_HOST}
+    restart: always
+    hostname: ${TOKEN_HOST}
+    env_file:
+      - .env
+    ports:
+      - ${TOKEN_PORT}:${TOKEN_PORT}
+    networks:
+      - backend
+    depends_on:
+      - devlab_db
+    links:
+      - devlab_db
+
+  devlab_db:
+    image: mongo
+    container_name: devlab_db
+    volumes:
+      - ./db/data/db-files:/data/db
+      # - ./db/mongod.conf:/etc/mongod.conf
+    ports:
+      - "27017:27017"
+    # entrypoint: ['mongod', '--config', '/etc/mongod.conf']
+    logging:
+      driver: none
+    networks:
+      - backend
+
+  redis:
+    image: redis
+    container_name: devlab_redis
+    expose:
+      - 6379
+    networks:
+      - backend
+
+  # nginx:
+  #   image: nginx:latest
+  #   container_name: nginx
+  #   volumes:
+  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+  #   ports:
+  #     - 80:80
+  #     - 443:443
+  #   networks:
+  #     - backend
+
+networks:
+  backend:
+    driver: bridge
