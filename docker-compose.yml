@@ -1,16 +1,14 @@
 version: "3.3"
 services:
-
-
   gateway:
     image: devlab-gateway-ms:1.0.0
     build:
-      context: ./devlab-gateway
+      context: ./devratory-gateway
       target: development
       dockerfile: ./Dockerfile
     command: npm run start:dev
     volumes:
-      - ./devlab-gateway:/usr/src/app
+      - ./devratory-gateway:/usr/src/app
       - /usr/src/app/node_modules
       - ./workflows.json:/usr/src/app/workflows.json
     container_name: ${GATEWAY_HOST}
@@ -28,12 +26,12 @@ services:
   devlab:
     image: devlab-ms:1.0.0
     build:
-      context: ./devlab-ms
+      context: ./devratory-server-ms
       target: development
       dockerfile: ./Dockerfile
     command: npm run start:dev
     volumes:
-      - ./devlab-ms:/usr/src/app
+      - ./devratory-server-ms:/usr/src/app
       - /usr/src/app/node_modules
     restart: unless-stopped
     container_name: ${DEVLAB_HOST}
@@ -95,6 +93,16 @@ services:
       driver: none
     networks:
       - backend
+
+  client:
+    build: 
+      context: ./devratory-angular-client
+      dockerfile: Dockerfile
+    command: npm run start
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./devratory-angular-client/src:/usr/src/app/src
 
   redis:
     image: redis
