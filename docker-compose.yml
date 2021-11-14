@@ -11,9 +11,7 @@ services:
       - ./devratory-gateway:/usr/src/app
       - /usr/src/app/node_modules
       - ./workflows.json:/usr/src/app/workflows.json
-    container_name: ${GATEWAY_HOST}
     restart: always
-    hostname: ${GATEWAY_HOST}
     env_file:
       - .env
     ports:
@@ -34,8 +32,6 @@ services:
       - ./devratory-server-ms:/usr/src/app
       - /usr/src/app/node_modules
     restart: unless-stopped
-    container_name: ${DEVLAB_HOST}
-    hostname: ${DEVLAB_HOST}
     env_file:
       - .env
     ports:
@@ -46,12 +42,11 @@ services:
       - devlab_db
     links:
       - devlab_db
+
   user:
     image: ekhmoi/devlab-user:0.0.2
     command: npm run start:prod
-    container_name: ${USER_HOST}
     restart: always
-    hostname: ${USER_HOST}
     env_file:
       - .env
     ports:
@@ -66,9 +61,7 @@ services:
   token:
     image: ekhmoi/devlab-token:0.0.4
     command: npm run start:prod
-    container_name: ${TOKEN_HOST}
     restart: always
-    hostname: ${TOKEN_HOST}
     env_file:
       - .env
     ports:
@@ -82,7 +75,6 @@ services:
 
   devlab_db:
     image: mongo
-    container_name: devlab_db
     volumes:
       - ./db/data/db-files:/data/db
       # - ./db/mongod.conf:/etc/mongod.conf
@@ -106,7 +98,6 @@ services:
 
   redis:
     image: redis
-    container_name: devlab_redis
     expose:
       - 6379
     networks:
@@ -114,7 +105,6 @@ services:
 
   # nginx:
   #   image: nginx:latest
-  #   container_name: nginx
   #   volumes:
   #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf
   #   ports:
