@@ -1,0 +1,9 @@
+[submodule "devratory-gateway"]
+	path = devratory-gateway
+	url = git@github.com:devratory/devratory-gateway.git
+[submodule "devratory-server-ms"]
+	path = devratory-server-ms
+	url = git@github.com:devratory/devratory-server-ms.git
+[submodule "devratory-angular-client"]
+	path = devratory-angular-client
+	url = git@github.com:devratory/devratory-angular-client.git
