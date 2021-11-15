@@ -100,7 +100,7 @@
   {
     "name": "GetWorkflows",
     "httpMethod": "get",
-    "url": "/projects/:projectId/workflows",
+    "url": "/workflows",
     "authWorkflow": "Auth",
     "steps": [
       {
@@ -108,8 +108,25 @@
         "name": "GetWorkflows",
         "pattern": "@workflow/get_all",
         "payload": {
-          "createdBy": "{{user.id}}",
-          "projectId": "{{params.projectId}}"
+          "projectId": "{{queryParams.projectId}}"
+        }
+      }
+    ],
+    "output": "{{GetWorkflows.data}}"
+  },
+
+  {
+    "name": "GetWorkflowById",
+    "httpMethod": "get",
+    "url": "/workflows/:workflowId",
+    "authWorkflow": "Auth",
+    "steps": [
+      {
+        "$$type": "MS_CALL",
+        "name": "GetWorkflows",
+        "pattern": "@workflow/get_by_id",
+        "payload": {
+          "id": "{{params.workflowId}}"
         }
       }
     ],
@@ -118,7 +135,7 @@
   {
     "name": "CreateWorkflow",
     "httpMethod": "post",
-    "url": "/projects/:projectId/workflows",
+    "url": "/workflows",
     "authWorkflow": "Auth",
     "steps": [
       {
@@ -127,8 +144,7 @@
         "pattern": "@workflow/create",
         "payload": {
           "...": "{{body}}",
-          "createdBy": "{{user.id}}",
-          "projectId": "{{params.projectId}}"
+          "createdBy": "{{user.id}}"
         }
       }
     ],
@@ -137,7 +153,7 @@
   {
     "name": "UpdateWorkflow",
     "httpMethod": "put",
-    "url": "/projects/:projectId/workflows/:workflowId",
+    "url": "/workflows/:workflowId",
     "authWorkflow": "Auth",
     "steps": [
       {
@@ -157,7 +173,7 @@
   {
     "name": "GetMicroservices",
     "httpMethod": "get",
-    "url": "/projects/:projectId/microservices",
+    "url": "/microservices",
     "authWorkflow": "Auth",
     "steps": [
       {
@@ -165,8 +181,7 @@
         "name": "GetMicroservices",
         "pattern": "@microservice/get_all",
         "payload": {
-          "projectId": "{{params.projectId}}",
-          "userId": "{{user.id}}"
+          "projectId": "{{queryParams.projectId}}"
         }
       }
     ],
@@ -175,7 +190,7 @@
   {
     "name": "CreateMicroservice",
     "httpMethod": "post",
-    "url": "/projects/:projectId/microservices",
+    "url": "/microservices",
     "authWorkflow": "Auth",
     "steps": [
       {
@@ -184,8 +199,7 @@
         "pattern": "@microservice/create",
         "payload": {
           "...": "{{body}}",
-          "createdBy": "{{user.id}}",
-          "projectId": "{{params.projectId}}"
+          "createdBy": "{{user.id}}"
         }
       }
     ],
@@ -194,7 +208,7 @@
   {
     "name": "UpdateMicroservice",
     "httpMethod": "put",
-    "url": "/projects/:projectId/microservices/:microserviceId",
+    "url": "/microservices/:microserviceId",
     "authWorkflow": "Auth",
     "steps": [
       {
